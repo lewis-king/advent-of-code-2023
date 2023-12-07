@@ -9,25 +9,29 @@ import (
 )
 
 func main() {
-	lines := common.ReadFileLines("day7/input/input.txt")
+	lines := common.ReadFileLines("day7/input/example2.txt")
 	var handRanksAndBids []CardHandRankAndBid
+
+	// Part 1 set to false, Part 2 set to true
+	isJokersWild := true
+
 	for _, line := range lines {
 		handAndBid := strings.Split(line, " ")
 		hand := handAndBid[0]
 		bid, _ := strconv.Atoi(handAndBid[1])
 		rank := 0
 		// NB: Checking of these predicates given a string is not very optimal because each check iterates the same hand. // TODO optimize i.e get number of occurrences of each card once and pass it to each predicate
-		if isFiveOfAKind(hand) {
+		if isFiveOfAKind(hand, isJokersWild) {
 			rank = 0
-		} else if isFourOfAKind(hand) {
+		} else if isFourOfAKind(hand, isJokersWild) {
 			rank = 1
-		} else if isFullHouse(hand) {
+		} else if isFullHouse(hand, isJokersWild) {
 			rank = 2
-		} else if isThreeOfAKind(hand) {
+		} else if isThreeOfAKind(hand, isJokersWild) {
 			rank = 3
 		} else if isTwoPair(hand) {
 			rank = 4
-		} else if isPair(hand) {
+		} else if isPair(hand, isJokersWild) {
 			rank = 5
 		} else if isHighCard(hand) {
 			rank = 6
@@ -58,6 +62,7 @@ func main() {
 		totalWinnings += handRanksAndBids[len(handRanksAndBids)-globalRank].Bid * globalRank
 	}
 	fmt.Println(totalWinnings)
+
 }
 
 var mapOfCardValues = map[string]int{
@@ -82,27 +87,46 @@ type CardHandRankAndBid struct {
 	Bid  int
 }
 
-func isFiveOfAKind(hand string) bool {
-	return len(countOccurrencesOfEachCard(hand)) == 1
+func isFiveOfAKind(hand string, isJokersWild bool) bool {
+	if isJokersWild {
+		numOfJokers := strings.Count(hand, "J")
+		return len(countOccurrencesOfEachCard(hand)) == 2 && numOfJokers != 0
+	} else {
+		return len(countOccurrencesOfEachCard(hand)) == 1
+	}
 }
 
-func isFourOfAKind(hand string) bool {
+func isFourOfAKind(hand string, isJokersWild bool) bool {
 	for _, occurrences := range countOccurrencesOfEachCard(hand) {
 		if occurrences == 4 {
 			return true
+		} else if isJokersWild {
+			numOfJokers := strings.Count(hand, "J")
+			if (len(countOccurrencesOfEachCard(hand)) == 3 && numOfJokers == 2 && occurrences == 2) || occurrences == 3 && numOfJokers == 1 {
+				return true
+			}
 		}
 	}
 	return false
 }
 
-func isFullHouse(hand string) bool {
+func isFullHouse(hand string, isJokersWild bool) bool {
+	if isJokersWild {
+		numOfJokers := strings.Count(hand, "J")
+		return len(countOccurrencesOfEachCard(hand)) == 3 && numOfJokers == 1
+	}
 	return len(countOccurrencesOfEachCard(hand)) == 2
 }
 
-func isThreeOfAKind(hand string) bool {
+func isThreeOfAKind(hand string, isJokersWild bool) bool {
 	for _, occurrences := range countOccurrencesOfEachCard(hand) {
 		if occurrences == 3 {
 			return true
+		} else if isJokersWild {
+			numOfJokers := strings.Count(hand, "J")
+			if occurrences+numOfJokers == 3 {
+				return true
+			}
 		}
 	}
 	return false
@@ -117,10 +141,15 @@ func isTwoPair(hand string) bool {
 	return false
 }
 
-func isPair(hand string) bool {
+func isPair(hand string, isJokersWild bool) bool {
 	for _, occurrences := range countOccurrencesOfEachCard(hand) {
 		if occurrences == 2 {
 			return true
+		} else if isJokersWild {
+			numOfJokers := strings.Count(hand, "J")
+			if occurrences+numOfJokers == 2 {
+				return true
+			}
 		}
 	}
 	return false
