@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-func readFileLine() []string {
-	content, err := os.ReadFile("day1/input.txt")
+func readFileLines() []string {
+	content, err := os.ReadFile("day1/input/input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -16,7 +16,7 @@ func readFileLine() []string {
 	return strings.Split(string(content), "\n")
 }
 
-var mapOfHumanReadableDigits = map[string]int{
+var mapOfTextualRepToDigit = map[string]int{
 	"one":   1,
 	"two":   2,
 	"three": 3,
@@ -29,7 +29,7 @@ var mapOfHumanReadableDigits = map[string]int{
 }
 
 func main() {
-	lines := readFileLine()
+	lines := readFileLines()
 	sumPart1 := 0
 	sumPart2 := 0
 	for _, s := range lines {
@@ -60,11 +60,11 @@ func readDigits(s string, firstNum int, lastNum int, textualDigits bool) (int, i
 			}
 			lastNum = v
 		} else if textualDigits {
-			for k := range mapOfHumanReadableDigits {
+			for k := range mapOfTextualRepToDigit {
 				if i+len(k)-1 < len(s) && s[i:i+len(k)] == k {
-					lastNum = mapOfHumanReadableDigits[k]
+					lastNum = mapOfTextualRepToDigit[k]
 					if firstNum == -1 {
-						firstNum = mapOfHumanReadableDigits[k]
+						firstNum = mapOfTextualRepToDigit[k]
 					}
 					break
 				}
