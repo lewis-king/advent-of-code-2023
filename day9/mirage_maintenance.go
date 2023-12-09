@@ -10,8 +10,14 @@ import (
 func main() {
 	lines := common.ReadFileLines("day9/input/input.txt")
 	total := 0
+	part2 := true
 	for _, line := range lines {
 		words := strings.Fields(line)
+		if part2 {
+			for i := 0; i < len(words)/2; i++ {
+				words[i], words[len(words)-i-1] = words[len(words)-i-1], words[i]
+			}
+		}
 		var numbers []int
 		for _, word := range words {
 			num, _ := strconv.Atoi(word)
