@@ -15,6 +15,11 @@ func ReadFileLines(inputPath string) []string {
 	return strings.Split(string(content), "\n")
 }
 
-func A() {
-
+func PrettyPrint2DArray(lines [][]string) {
+	for _, line := range lines {
+		for _, char := range line {
+			print(char)
+		}
+		println()
+	}
 }
